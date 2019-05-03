@@ -1,5 +1,6 @@
 package com.campus.system.annotation;
 
 public @interface Service {
-    String value();
+    String name();
+    String module();
 }

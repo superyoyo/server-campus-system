@@ -27,29 +27,31 @@ public class ServiceProcessor extends AbstractProcessor {
 
     private void dealService(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(Service.class);
-        TypeSpec.Builder serviceMapBuilder = TypeSpec.classBuilder("ServiceMap")
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
-
-        MethodSpec.Builder registerBuilder = MethodSpec.methodBuilder("register")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .returns(void.class);
         for (Element element : elements) {
             // 获取 ModuleService 注解的值
             Service service = element.getAnnotation(Service.class);
-            String serviceURI = service.value();
+            String serviceURI = service.name();
+
+            TypeSpec.Builder serviceMapBuilder = TypeSpec.classBuilder(service.module() + "ServiceMap")
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+
+            MethodSpec.Builder registerBuilder = MethodSpec.methodBuilder("register")
+                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .returns(void.class);
+
             registerBuilder.addStatement("$T.getInstance().registeService($S, $T.class)"
-                    , ClassName.get("com.campus.system.service.Service", "ServiceContext")
+                    , ClassName.get("com.campus.system", "ServiceContext")
                     , serviceURI
                     , ClassName.get((TypeElement) element));
-        }
-        serviceMapBuilder.addMethod(registerBuilder.build());
-        JavaFile javaFile = JavaFile.builder("com.campus.system.service.Service", serviceMapBuilder.build())
-                .build();
-        try {
-            javaFile.writeTo(processingEnv.getFiler());
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("生产类异常：" + e.getMessage());
+            serviceMapBuilder.addMethod(registerBuilder.build());
+            JavaFile javaFile = JavaFile.builder("com.campus.system", serviceMapBuilder.build())
+                    .build();
+            try {
+                javaFile.writeTo(processingEnv.getFiler());
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("生产类异常：" + e.getMessage());
+            }
         }
     }
 }
