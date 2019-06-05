@@ -17,8 +17,8 @@ public class ServiceContext {
     }
 
     private ServiceContext(){
-        mServiceMenu = new HashMap<>();
-        mServiceCache = new HashMap<>();
+        mServiceMenu = new HashMap();
+        mServiceCache = new HashMap();
     }
 
     public synchronized void registeService(String service, Class<? extends Service> serviceClass){
